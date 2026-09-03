@@ -77,9 +77,9 @@ function LoginPage() {
           <div className="mb-6">
             <img src="/favicon.png" alt="Lo Valledor" className="h-28 w-28 object-contain drop-shadow-lg" />
           </div>
-          <h2 className="text-4xl font-bold mb-4">Bienvenido 👋</h2>
+          <h2 className="text-4xl font-bold mb-4">Bienvenido</h2>
           <p className="text-lg text-green-50 leading-relaxed">
-            Gestiona y responde encuestas de horario de apertura de Lo Valledor.
+            Encuestas extensión horario de cierre de Lo Valledor.
           </p>
         </div>
       </div>
@@ -91,13 +91,12 @@ function LoginPage() {
           <div className="flex items-center justify-center gap-3 mb-2">
             <img src="/favicon.png" alt="Lo Valledor" className="h-10 w-10 object-contain" />
             <div className="text-center">
-              <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-tight">Encuestas</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Horario Apertura</p>
+              <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-tight">Inicia Sesión</h1>
             </div>
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Iniciar sesión</h2>
+            
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ingresa tus credenciales para continuar</p>
           </div>
 

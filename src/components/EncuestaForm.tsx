@@ -263,7 +263,7 @@ function EncuestaForm() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le gustaría prolongar el horario de cierre del día Sábado?</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le gustaría que se prolongue el horario de cierre del día sábado?</label>
                 {extenderHorario === null && <p className="text-xs text-red-400 mb-2">Campo obligatorio</p>}
                 <div className="flex gap-3 items-center flex-wrap">
                   <button type="button" onClick={() => { setExtenderHorario(true); setNuevoHorario('') }} disabled={!formEnabled} className={`w-28 px-3 py-2.5 rounded-lg border text-sm font-medium transition cursor-pointer ${extenderHorario === true ? 'bg-green-600 text-white border-green-600' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600'}`}>Sí</button>
@@ -271,6 +271,7 @@ function EncuestaForm() {
                   {extenderHorario === true && (
                     <select value={nuevoHorario} onChange={e => setNuevoHorario(e.target.value)} disabled={!formEnabled} className="flex-1 min-w-[180px] px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-700 dark:text-gray-100">
                       <option value="">Seleccione horario...</option>
+                      <option value="16:00">16:00 hrs</option>
                       <option value="17:00">17:00 hrs</option>
                       <option value="18:00">18:00 hrs</option>
                       <option value="19:00">19:00 hrs</option>

@@ -6,3 +6,8 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-slide-up { animation: slide-up 0.3s ease-out; }
+
+.logo-texto{line-height:1.1}
+.logo-texto b{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:var(--verde-oscuro);letter-spacing:.3px}
+.logo-texto span{display:block;font-size:10px;font-weight:700;color:var(--rojo);letter-spacing:2.4px;text-transform:uppercase}
+.logo-texto img{width:100%;height:46px;fill:#fff}
