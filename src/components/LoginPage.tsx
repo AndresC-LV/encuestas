@@ -100,7 +100,7 @@ function LoginPage() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ingresa tus credenciales para continuar</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/40 p-6 shadow-sm">
             {/* Usuario */}
             <div>
               <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Usuario</label>
