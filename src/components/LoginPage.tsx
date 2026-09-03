@@ -111,7 +111,7 @@ function LoginPage() {
                 <input
                   value={usuario}
                   onChange={e => setUsuario(e.target.value)}
-                  placeholder="userDev@lovalledor.cl"
+                  placeholder="usuario@lovalledor.cl"
                   className="w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
                 />
                 {usuario.length > 0 && (
