@@ -29,20 +29,34 @@ function EncuestaForm() {
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
   const [error, setError] = useState('')
-  const [kpi, setKpi] = useState({ total: 0, siExtenderHorario: 0, noExtenderHorario: 0, fechaInicio: null as string | null })
+  const [kpi, setKpi] = useState({
+    total: 0,
+    siExtenderHorario: 0,
+    noExtenderHorario: 0,
+    fechaInicio: null as string | null,
+    porHorario: { '16:00': 0, '17:00': 0, '18:00': 0, '19:00': 0 },
+  })
+  const [kpiOpen, setKpiOpen] = useState(false)
+  const [showHorarioTooltip, setShowHorarioTooltip] = useState(false)
   const { user } = useAuth()
   
 
   async function fetchKpi() {
     try {
-      const res = await fetch(`${supabaseUrl}/rest/v1/encuestas_horario?select=extenderHorario,createdAt&order=createdAt.asc`, { headers: { apikey: supabaseServiceKey, Authorization: `Bearer ${supabaseServiceKey}` } })
+      const res = await fetch(`${supabaseUrl}/rest/v1/encuestas_horario?select=extenderHorario,createdAt,horarioPropuesto&order=createdAt.asc`, { headers: { apikey: supabaseServiceKey, Authorization: `Bearer ${supabaseServiceKey}` } })
       if (!res.ok) return
       const data = await res.json()
       const total = data.length
       const siExtenderHorario = data.filter((r: any) => r.extenderHorario === true).length
       const noExtenderHorario = data.filter((r: any) => r.extenderHorario === false || r.extenderHorario === null).length
       const fechaInicio = data.length > 0 ? data[0].createdAt : null
-      setKpi({ total, siExtenderHorario, noExtenderHorario, fechaInicio })
+      const porHorario = {
+        '16:00': data.filter((r: any) => r.extenderHorario === true && r.horarioPropuesto === '16:00').length,
+        '17:00': data.filter((r: any) => r.extenderHorario === true && r.horarioPropuesto === '17:00').length,
+        '18:00': data.filter((r: any) => r.extenderHorario === true && r.horarioPropuesto === '18:00').length,
+        '19:00': data.filter((r: any) => r.extenderHorario === true && r.horarioPropuesto === '19:00').length,
+      }
+      setKpi({ total, siExtenderHorario, noExtenderHorario, fechaInicio, porHorario })
     } catch {}
   }
 
@@ -120,21 +134,46 @@ function EncuestaForm() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 lg:p-6">
+            <button
+              type="button"
+              onClick={() => setKpiOpen(!kpiOpen)}
+              className="lg:hidden w-full flex items-center justify-between text-lg font-bold text-gray-800 dark:text-gray-100 mb-2"
+            >
+              <span>Encuesta MMLV</span>
+              <span className="text-sm">{kpiOpen ? '▲' : '▼'}</span>
+            </button>
             <h2 className="hidden lg:block text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Encuesta MMLV</h2>
-            <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mb-1">Encuestas desde: <span className="font-semibold text-gray-700 dark:text-gray-200">{formatDate(kpi.fechaInicio)}</span></p>
-            <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mb-3 lg:mb-4">Total Personas encuestadas: <span className="font-semibold text-gray-700 dark:text-gray-200">{kpi.total}</span></p>
-            <div className="mb-3">
-              <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide mb-2">¿Le Gustaría prolongar horario de cierre?</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-2 text-center">
+            <div className={`${kpiOpen ? 'block' : 'hidden'} lg:block`}>
+              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mb-1">Encuestas desde: <span className="font-semibold text-gray-700 dark:text-gray-200">{formatDate(kpi.fechaInicio)}</span></p>
+              <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 mb-3 lg:mb-4">Total Personas encuestadas: <span className="font-semibold text-gray-700 dark:text-gray-200">{kpi.total}</span></p>
+              <div className="mb-3">
+                <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide mb-2">¿Le Gustaría prolongar horario de cierre?</h3>
+                <div className="grid grid-cols-2 gap-2">
+                <div
+                  className="relative group bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-2 text-center cursor-pointer"
+                  onClick={() => setShowHorarioTooltip(v => !v)}
+                  onMouseEnter={() => setShowHorarioTooltip(true)}
+                  onMouseLeave={() => setShowHorarioTooltip(false)}
+                >
                   <p className="text-base font-bold text-green-700 dark:text-green-300">{kpi.siExtenderHorario}</p>
                   <p className="text-xs font-semibold text-green-700 dark:text-green-300">{pct(kpi.siExtenderHorario)}%</p>
-                  <p className="text-xs text-green-600 dark:text-green-400">👍 Sí</p>
+                  <p className="text-xs text-green-600 dark:text-gray-400">👍 Sí</p>
+                  <div className={`absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-44 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-green-200 dark:border-green-800 p-3 transition-all duration-200 scale-100 z-10 ${showHorarioTooltip ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                    <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-2">Horarios propuestos</p>
+                    {Object.entries(kpi.porHorario).map(([hora, cantidad]) => (
+                      <div key={hora} className="flex justify-between text-xs mb-1 last:mb-0">
+                        <span className="text-gray-600 dark:text-gray-300">{hora} hrs</span>
+                        <span className="font-semibold text-green-700 dark:text-green-300">{cantidad}</span>
+                      </div>
+                    ))}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-white dark:bg-gray-800 border-b border-r border-green-200 dark:border-green-800 rotate-45 -mt-1.5"></div>
+                  </div>
                 </div>
-                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-2 text-center">
-                  <p className="text-base font-bold text-red-700 dark:text-red-300">{kpi.noExtenderHorario}</p>
-                  <p className="text-xs font-semibold text-red-700 dark:text-red-300">{pct(kpi.noExtenderHorario)}%</p>
-                  <p className="text-xs text-red-600 dark:text-red-400">👎 No</p>
+                  <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-2 text-center">
+                    <p className="text-base font-bold text-red-700 dark:text-red-300">{kpi.noExtenderHorario}</p>
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-300">{pct(kpi.noExtenderHorario)}%</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">👎 No</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -143,93 +182,93 @@ function EncuestaForm() {
         <div className="lg:col-span-3">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
             <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-6">
-  <div className="flex items-center gap-4 mb-3">
-    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-      ¿Dónde estás ubicado?:
-    </span>
+              <div className="flex items-center gap-4 mb-3">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  ¿Dónde estás ubicado?:
+                </span>
 
-    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-      <input
-        type="radio"
-        name="sectorPuerta"
-        checked={sectorPuerta === "sector"}
-        onChange={() => {
-          setSectorPuerta("sector");
-          setPatio("");
-          setPuerta("");
-        }}
-        className="sr-only peer"
-      />
+                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="radio"
+                    name="sectorPuerta"
+                    checked={sectorPuerta === "sector"}
+                    onChange={() => {
+                      setSectorPuerta("sector");
+                      setPatio("");
+                      setPuerta("");
+                    }}
+                    className="sr-only peer"
+                  />
 
-      <span className="w-20 px-3 py-1.5 rounded-lg border text-sm font-medium transition text-center peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600">
-        Sector
-      </span>
-    </label>
+                  <span className="w-20 px-3 py-1.5 rounded-lg border text-sm font-medium transition text-center peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600">
+                    Sector
+                  </span>
+                </label>
 
-    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-      <input
-        type="radio"
-        name="sectorPuerta"
-        checked={sectorPuerta === "puerta"}
-        onChange={() => {
-          setSectorPuerta("puerta");
-          setPatio("");
-          setPuerta("");
-        }}
-        className="sr-only peer"
-      />
+                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="radio"
+                    name="sectorPuerta"
+                    checked={sectorPuerta === "puerta"}
+                    onChange={() => {
+                      setSectorPuerta("puerta");
+                      setPatio("");
+                      setPuerta("");
+                    }}
+                    className="sr-only peer"
+                  />
 
-      <span className="w-20 px-3 py-1.5 rounded-lg border text-sm font-medium transition text-center peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600">
-        Puerta
-      </span>
-    </label>
-  </div>
+                  <span className="w-20 px-3 py-1.5 rounded-lg border text-sm font-medium transition text-center peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600">
+                    Puerta
+                  </span>
+                </label>
+              </div>
 
-  {/* Solo mostrar el select cuando corresponda */}
-  {sectorPuerta === "sector" && (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Sector
-      </label>
+              {/* Solo mostrar el select cuando corresponda */}
+              {sectorPuerta === "sector" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Sector
+                  </label>
 
-      <select
-        value={patio}
-        onChange={(e) => setPatio(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-700 dark:text-gray-100"
-      >
-        <option value="">Seleccione sector...</option>
+                  <select
+                    value={patio}
+                    onChange={(e) => setPatio(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-700 dark:text-gray-100"
+                  >
+                    <option value="">Seleccione sector...</option>
 
-        {sectores.map((s) => (
-          <option key={s.id} value={s.nombre}>
-            {formatName(s.nombre)}
-          </option>
-        ))}
-      </select>
-    </div>
-  )}
+                    {sectores.map((s) => (
+                      <option key={s.id} value={s.nombre}>
+                        {formatName(s.nombre)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-  {sectorPuerta === "puerta" && (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Puerta
-      </label>
+              {sectorPuerta === "puerta" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Puerta
+                  </label>
 
-      <select
-        value={puerta}
-        onChange={(e) => setPuerta(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-700 dark:text-gray-100"
-      >
-        <option value="">Seleccione puerta...</option>
+                  <select
+                    value={puerta}
+                    onChange={(e) => setPuerta(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-700 dark:text-gray-100"
+                  >
+                    <option value="">Seleccione puerta...</option>
 
-        {puertas.map((p) => (
-          <option key={p.id} value={p.nombre}>
-            {formatName(p.nombre)}
-          </option>
-        ))}
-      </select>
-    </div>
-  )}
-</div>
+                    {puertas.map((p) => (
+                      <option key={p.id} value={p.nombre}>
+                        {formatName(p.nombre)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
             <form onSubmit={handleSubmit} className={`space-y-4 ${!formEnabled ? 'pointer-events-none opacity-50' : ''}`}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Patente</label>
@@ -263,7 +302,7 @@ function EncuestaForm() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le gustaría que se prolongue el horario de cierre del día sábado?</label>
+                <label className="block text-md font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le gustaría que se prolongue el horario de cierre del día sábado?</label>
                 {extenderHorario === null && <p className="text-xs text-red-400 mb-2">Campo obligatorio</p>}
                 <div className="flex gap-3 items-center flex-wrap">
                   <button type="button" onClick={() => { setExtenderHorario(true); setNuevoHorario('') }} disabled={!formEnabled} className={`w-28 px-3 py-2.5 rounded-lg border text-sm font-medium transition cursor-pointer ${extenderHorario === true ? 'bg-green-600 text-white border-green-600' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600'}`}>Sí</button>
