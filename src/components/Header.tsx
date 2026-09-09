@@ -1,7 +1,13 @@
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
-function Header() {
+interface HeaderProps {
+  view: 'form' | 'stats'
+  onChangeView: (view: 'form' | 'stats') => void
+  puedeVerEstadisticas: boolean
+}
+
+function Header({ view, onChangeView, puedeVerEstadisticas }: HeaderProps) {
   const { user, logout } = useAuth()
   const { modoOscuro, toggleModo } = useTheme()
   return (
@@ -14,7 +20,18 @@ function Header() {
         </span>
         <div className="flex items-center gap-3">
           <span className="text-sm hidden sm:inline">{user?.nombre}</span>
-          <button onClick={toggleModo} title={modoOscuro ? 'Modo Día' : 'Modo Noche'} className="p-1.5 rounded-lg hover:bg-green-600 cursor-pointer">{modoOscuro ? '☀️' : '🌙'}</button>
+          <button onClick={toggleModo} title={modoOscuro ? 'Modo Día' : 'Modo Noche'} className="p-1.5 rounded-lg hover:bg-green-600 cursor-pointer">
+            {modoOscuro ? '☀️' : '🌙'}
+          </button>
+          {view === 'stats' ? (
+            <button onClick={() => onChangeView('form')} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">Encuesta</button>
+          ) : (
+            puedeVerEstadisticas && (
+              <button onClick={() => onChangeView('stats')} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">
+                Estadísticas
+              </button>
+            )
+          )}
           <button onClick={logout} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">Salir</button>
         </div>
       </div>

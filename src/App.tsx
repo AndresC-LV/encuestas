@@ -1,14 +1,20 @@
 
+import { useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import LoginPage from './components/LoginPage'
 import EncuestaForm from './components/EncuestaForm'
+import EstadisticasPage from './components/estadisticas/page'
 import Header from './components/Header'
 
-
+type View = 'form' | 'stats'
 
 function AppInner() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const [view, setView] = useState<View>('form')
+
+  const puedeVerEstadisticas = user?.usuario === 'userDev@lovalledor.cl' || user?.usuario === 'czapater@lovalledor.cl'
+
   if (isAuthenticated === null) 
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -20,9 +26,20 @@ function AppInner() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
+      <Header
+        view={view}
+        onChangeView={setView}
+        puedeVerEstadisticas={puedeVerEstadisticas}
+      />
+
       <main className="flex-1 py-6">
-        <EncuestaForm />
+        {view === 'form' ? (
+          <EncuestaForm />
+        ) : puedeVerEstadisticas ? (
+          <EstadisticasPage />
+        ) : (
+          <EncuestaForm />
+        )}
       </main>
     </div>
   )
