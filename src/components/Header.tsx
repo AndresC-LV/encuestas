@@ -2,12 +2,13 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
 interface HeaderProps {
-  view: 'form' | 'stats'
-  onChangeView: (view: 'form' | 'stats') => void
+  view: 'form' | 'stats' | 'foodservice'
+  onChangeView: (view: 'form' | 'stats' | 'foodservice') => void
   puedeVerEstadisticas: boolean
+  puedeVerFoodService: boolean
 }
 
-function Header({ view, onChangeView, puedeVerEstadisticas }: HeaderProps) {
+function Header({ view, onChangeView, puedeVerEstadisticas, puedeVerFoodService }: HeaderProps) {
   const { user, logout } = useAuth()
   const { modoOscuro, toggleModo } = useTheme()
   return (
@@ -23,14 +24,27 @@ function Header({ view, onChangeView, puedeVerEstadisticas }: HeaderProps) {
           <button onClick={toggleModo} title={modoOscuro ? 'Modo Día' : 'Modo Noche'} className="p-1.5 rounded-lg hover:bg-green-600 cursor-pointer">
             {modoOscuro ? '☀️' : '🌙'}
           </button>
-          {view === 'stats' ? (
-            <button onClick={() => onChangeView('form')} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">Encuesta</button>
-          ) : (
-            puedeVerEstadisticas && (
-              <button onClick={() => onChangeView('stats')} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">
-                Estadísticas
-              </button>
-            )
+          <button
+            onClick={() => onChangeView('form')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${view === 'form' ? 'bg-green-600 text-white' : 'hover:bg-green-600'}`}
+          >
+            Encuesta
+          </button>
+          {puedeVerFoodService && (
+            <button
+              onClick={() => onChangeView('foodservice')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${view === 'foodservice' ? 'bg-green-600 text-white' : 'hover:bg-green-600'}`}
+            >
+              FoodService
+            </button>
+          )}
+          {puedeVerEstadisticas && (
+            <button
+              onClick={() => onChangeView('stats')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${view === 'stats' ? 'bg-green-600 text-white' : 'hover:bg-green-600'}`}
+            >
+              Estadísticas
+            </button>
           )}
           <button onClick={logout} className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 cursor-pointer">Salir</button>
         </div>
